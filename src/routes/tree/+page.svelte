@@ -341,9 +341,127 @@
 	"
 ></div>
 
-<div bind:this={treeViewport} class="relative h-[calc(100vh-5.5rem)] w-full overflow-auto pt-24 pb-16 md:h-full md:pt-0 md:pb-0" onwheel={handleZoomWheel}>
+<div class="relative px-4 pb-24 pt-24 md:hidden">
+	<section class="rounded-3xl bg-surface-container-lowest p-4 shadow-[0_8px_28px_rgba(25,28,29,0.06)]">
+		<p class="text-[11px] font-bold uppercase tracking-[0.16em] text-secondary">Generasi 1</p>
+		<div class="mt-3 grid grid-cols-1 gap-3">
+			{#each generation1 as member}
+				<a
+					href={profileLink(member.id)}
+					class="flex min-w-0 items-center gap-3 rounded-2xl bg-surface-container-low p-3"
+				>
+					<img
+						class="h-14 w-14 shrink-0 rounded-xl border border-tertiary/20 object-cover"
+						alt={`Foto ${member.name}`}
+						src={member.image}
+					/>
+					<div class="min-w-0">
+						<p class="truncate font-headline text-lg font-bold leading-tight text-primary">{member.name}</p>
+						<p class="mt-1 text-xs font-semibold text-secondary">{bornLabel(member)}</p>
+						<p class="mt-1 text-[11px] text-outline">{locationLabel(member)}</p>
+					</div>
+				</a>
+			{/each}
+		</div>
+	</section>
+
+	{#if branches.length > 0}
+		<section class="mt-5 space-y-4">
+			<p class="px-1 text-[11px] font-bold uppercase tracking-[0.16em] text-secondary">Generasi 2 - 4</p>
+			{#each branches as branch}
+				<article class="rounded-3xl bg-surface-container-lowest p-4 shadow-[0_8px_28px_rgba(25,28,29,0.06)]">
+					<div class="mb-3">
+						<p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-outline">Cabang Keluarga</p>
+						<p class="mt-1 text-sm font-bold text-primary">{branch.parents.map((parent) => parent.name).join(' & ')}</p>
+					</div>
+
+					<div class="grid grid-cols-1 gap-2">
+						{#each branch.parents as member}
+							<a
+								href={profileLink(member.id)}
+								class="flex min-w-0 items-center gap-3 rounded-2xl bg-surface-container-low p-3"
+							>
+								<img
+									class="h-11 w-11 shrink-0 rounded-lg border border-tertiary/20 object-cover"
+									alt={`Foto ${member.name}`}
+									src={member.image}
+								/>
+								<div class="min-w-0">
+									<p class="truncate text-sm font-bold text-primary">{member.name}</p>
+									<p class="text-[11px] font-semibold text-secondary">{bornLabel(member)}</p>
+								</div>
+							</a>
+						{/each}
+					</div>
+
+					{#if branch.couples.length > 0}
+						<div class="mt-4 space-y-3">
+							{#each branch.couples as couple}
+								<div class="rounded-2xl bg-surface-container-low p-3">
+									<div class={couple.person2 ? 'grid grid-cols-2 gap-3' : 'grid grid-cols-1 gap-3'}>
+										<a
+											href={profileLink(couple.person1.id)}
+											class="flex min-w-0 flex-col items-center rounded-xl bg-surface-container-lowest p-3 text-center"
+										>
+											<img
+												class="h-12 w-12 rounded-full border border-tertiary/20 object-cover"
+												alt={`Foto ${couple.person1.name}`}
+												src={couple.person1.image}
+											/>
+											<p class="mt-2 w-full truncate text-sm font-bold text-primary">{couple.person1.name}</p>
+											<p class="text-[11px] font-semibold text-secondary">{bornLabel(couple.person1)}</p>
+										</a>
+
+										{#if couple.person2}
+											<a
+												href={profileLink(couple.person2.id)}
+												class="flex min-w-0 flex-col items-center rounded-xl bg-surface-container-lowest p-3 text-center"
+											>
+												<img
+													class="h-12 w-12 rounded-full border border-tertiary/20 object-cover"
+													alt={`Foto ${couple.person2.name}`}
+													src={couple.person2.image}
+												/>
+												<p class="mt-2 w-full truncate text-sm font-bold text-primary">{couple.person2.name}</p>
+												<p class="text-[11px] font-semibold text-secondary">{bornLabel(couple.person2)}</p>
+											</a>
+										{/if}
+									</div>
+
+									{#if couple.children.length > 0}
+										<div class="mt-3 rounded-xl bg-surface-container-lowest p-3">
+											<p class="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-outline">Anak</p>
+											<div class="grid grid-cols-2 gap-2">
+												{#each couple.children as child}
+													<a
+														href={profileLink(child.id)}
+														class="flex min-w-0 flex-col items-center rounded-lg bg-surface-container-low p-2.5 text-center"
+													>
+														<img
+															class="h-10 w-10 rounded-full border border-tertiary/20 object-cover"
+															alt={`Foto ${child.name}`}
+															src={child.image}
+														/>
+														<p class="mt-2 w-full truncate text-xs font-bold text-primary">{child.name}</p>
+														<p class="text-[10px] font-semibold text-secondary">{bornLabel(child)}</p>
+													</a>
+												{/each}
+											</div>
+										</div>
+									{/if}
+								</div>
+							{/each}
+						</div>
+					{/if}
+				</article>
+			{/each}
+		</section>
+	{/if}
+</div>
+
+<div bind:this={treeViewport} class="relative hidden h-[calc(100vh-4rem)] w-full overflow-auto pb-0 pt-0 md:block" onwheel={handleZoomWheel}>
 	<div class="origin-top-left" style={zoomLayerStyle}>
-		<div class="flex w-max min-w-[1180px] md:min-w-[1400px] flex-col items-center p-6 pt-20 md:p-24 md:pt-32">
+		<div class="flex w-max min-w-[1400px] flex-col items-center p-24 pt-32">
 	<div class="relative mb-12 flex flex-wrap justify-center gap-16">
 		{#each generation1 as member}
 			<div class="flex flex-col items-center">
@@ -480,7 +598,7 @@
 	</div>
 </div>
 
-<div class="fixed bottom-6 right-6 z-50">
+<div class="fixed bottom-6 right-6 z-50 hidden md:block">
 	<div
 		class="overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-lowest/90 shadow-lg backdrop-blur-sm"
 	>
