@@ -28,9 +28,9 @@
 
 <!-- TopNavBar Anchor -->
 <header
-	class="fixed top-0 right-0 w-full md:w-[calc(100%-16rem)] z-40 bg-white/70 backdrop-blur-xl flex justify-between items-center h-16 pl-16 pr-4 md:px-8 border-b border-slate-100/10"
+	class="fixed top-0 right-0 w-full md:w-[calc(100%-16rem)] z-40 bg-white/70 backdrop-blur-xl flex flex-col md:flex-row justify-start md:justify-between items-start md:items-center gap-3 md:gap-0 h-auto md:h-16 py-3 md:py-0 pl-16 pr-4 md:px-8 border-b border-slate-100/10"
 >
-	<div class="flex items-center gap-2 md:gap-4 truncate">
+	<div class="flex w-full md:w-auto items-center gap-2 md:gap-4 truncate">
 		<span class="text-lg md:text-xl font-black text-emerald-900 tracking-tight truncate min-w-0" title="The Living Archive">The Living Archive</span>
 		<span class="hidden md:block h-4 w-[1px] bg-outline-variant/30"></span>
 		<nav class="hidden md:flex gap-6 text-sm font-medium">
@@ -38,18 +38,18 @@
 			<a class="text-emerald-900 font-bold" href="/profile/{member.id}">Member Profile</a>
 		</nav>
 	</div>
-	<div class="flex items-center justify-end gap-6 flex-1 md:flex-none max-w-[200px] md:max-w-none">
+	<div class="flex w-full md:w-auto items-center">
 		<MemberSearch
-			placeholder="Search..."
+			placeholder="Search members..."
 			wrapperClass="relative w-full md:w-64"
-			inputClass="bg-surface-container-low border-none rounded-full py-1.5 pl-10 pr-4 text-sm w-full focus:ring-2 focus:ring-primary/10 transition-all"
-			iconClass="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg"
+			inputClass="pl-10 pr-4 py-1.5 bg-surface-container-low border-none rounded-full text-sm focus:ring-1 focus:ring-tertiary w-full"
+			iconClass="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg"
 		/>
 	</div>
 </header>
 
 <!-- Profile Content -->
-<div class="pt-24 pb-16 px-4 md:px-12 max-w-7xl mx-auto">
+<div class="pt-32 md:pt-24 pb-16 px-4 md:px-12 max-w-7xl mx-auto">
 	<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
 		<!-- Left Column: Identity Card -->
 		<div class="col-span-1 lg:col-span-4 space-y-8">
