@@ -1,5 +1,6 @@
 <script lang="ts">
     import { fade, scale } from 'svelte/transition';
+    import { onMount } from 'svelte';
     import { galleryMoments, type GalleryMoment } from '$lib/data/gallery';
     import MemberSearch from '$lib/components/MemberSearch.svelte';
 
@@ -11,6 +12,15 @@
 
     let activeFilter = $state<GalleryFilter>('All');
     let selectedMoment = $state<GalleryMoment | null>(null);
+    let isIosSafari = $state(false);
+
+    onMount(() => {
+        const ua = navigator.userAgent;
+        const isIOSDevice = /iP(ad|hone|od)/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        const isWebKit = /WebKit/i.test(ua);
+        const isOtherIOSBrowser = /CriOS|FxiOS|EdgiOS|OPiOS|DuckDuckGo/i.test(ua);
+        isIosSafari = isIOSDevice && isWebKit && !isOtherIOSBrowser;
+    });
 
     function getVisibleMoments(): GalleryMoment[] {
         if (activeFilter === 'All') return sortedMoments;
@@ -23,6 +33,18 @@
 
     function formatCategoryLabel(category: string) {
         return category.toUpperCase();
+    }
+
+    function closeLightbox() {
+        selectedMoment = null;
+    }
+
+    function lightboxContentTransition(node: Element) {
+        if (isIosSafari) {
+            return fade(node, { duration: 160 });
+        }
+
+        return scale(node, { duration: 350, start: 0.95, opacity: 0 });
     }
 
     // Distribute into 2 columns for md
@@ -284,19 +306,21 @@
     </div>
 </div>
 
-<svelte:window onkeydown={(e) => selectedMoment && e.key === 'Escape' && (selectedMoment = null)} />
+<svelte:window onkeydown={(e) => selectedMoment && e.key === 'Escape' && closeLightbox()} />
 
 <!-- Fullscreen Image Modal / Lightbox -->
 {#if selectedMoment}
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <div
-        class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-md md:p-10"
-        transition:fade={{ duration: 250 }}
+        class={`fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 ${
+            isIosSafari ? 'bg-slate-950/95 ios-lightbox-overlay' : 'bg-slate-950/90 backdrop-blur-md'
+        }`}
+        transition:fade={{ duration: isIosSafari ? 140 : 250 }}
         role="dialog"
         aria-modal="true"
         tabindex="-1"
-        onclick={() => (selectedMoment = null)}
+        onclick={closeLightbox}
     >
 
         <!-- Close Button -->
@@ -305,7 +329,7 @@
             aria-label="Close"
             onclick={(e) => {
                 e.stopPropagation();
-                selectedMoment = null;
+                closeLightbox();
             }}
         >
             <span class="material-symbols-outlined block text-2xl leading-none">close</span>
@@ -315,15 +339,17 @@
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
-            class="relative flex max-h-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-black shadow-2xl ring-1 ring-white/10"
-            transition:scale={{ duration: 350, start: 0.95, opacity: 0 }}
+            class={`relative flex max-h-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-black shadow-2xl ring-1 ring-white/10 ${
+                isIosSafari ? 'ios-lightbox-surface' : ''
+            }`}
+            transition:lightboxContentTransition
             onclick={(e) => e.stopPropagation()}
         >
             <div class="relative flex items-center justify-center overflow-hidden">
                 <img
                     src={selectedMoment.image}
                     alt={selectedMoment.alt}
-                    class="h-auto max-h-[75vh] w-auto max-w-full object-contain"
+                    class={`h-auto max-h-[75vh] w-auto max-w-full object-contain ${isIosSafari ? 'ios-lightbox-image' : ''}`}
                 />
             </div>
             
@@ -378,5 +404,19 @@
     .masonry-item {
         break-inside: avoid;
         margin-bottom: 1.5rem;
+    }
+
+    .ios-lightbox-overlay {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        will-change: opacity;
+    }
+
+    .ios-lightbox-surface,
+    .ios-lightbox-image {
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
     }
 </style>
