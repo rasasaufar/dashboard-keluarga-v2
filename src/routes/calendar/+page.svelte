@@ -276,13 +276,6 @@
 					{/each}
 				</div>
 			</section>
-
-			<button
-				class="w-full flex items-center justify-center gap-2 py-3 bg-surface-container-low hover:bg-white border hover:border-primary/20 hover:text-primary hover:shadow-md transition-all rounded-xl text-sm font-bold text-secondary"
-			>
-				<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
-				Add Event
-			</button>
 		</aside>
 	</div>
 
