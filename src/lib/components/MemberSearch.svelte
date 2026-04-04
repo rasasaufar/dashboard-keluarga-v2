@@ -35,6 +35,8 @@
 	let wrapperElement: HTMLDivElement | null = null;
 	let query = $state('');
 	let isFocused = $state(false);
+	let keepDropdownOpenOnBlur = false;
+	let dropdownTapTimer: ReturnType<typeof setTimeout> | null = null;
 
 	const normalizedQuery = $derived(query.trim().toLowerCase());
 	const results = $derived(
@@ -49,10 +51,27 @@
 	function handleFocusOut(event: FocusEvent) {
 		const nextTarget = event.relatedTarget as Node | null;
 		if (nextTarget && wrapperElement?.contains(nextTarget)) return;
+		if (keepDropdownOpenOnBlur) return;
 		isFocused = false;
 	}
 
+	function markDropdownInteraction() {
+		keepDropdownOpenOnBlur = true;
+		if (dropdownTapTimer) {
+			clearTimeout(dropdownTapTimer);
+		}
+		dropdownTapTimer = setTimeout(() => {
+			keepDropdownOpenOnBlur = false;
+			dropdownTapTimer = null;
+		}, 180);
+	}
+
 	async function openMember(memberId: string) {
+		keepDropdownOpenOnBlur = false;
+		if (dropdownTapTimer) {
+			clearTimeout(dropdownTapTimer);
+			dropdownTapTimer = null;
+		}
 		query = '';
 		isFocused = false;
 		await goto(`/profile/${memberId}`);
@@ -87,6 +106,9 @@
 							<button
 								type="button"
 								class="flex w-full items-center gap-3 px-4 py-2 text-left transition-colors hover:bg-surface-container-low"
+								onpointerdown={markDropdownInteraction}
+								onmousedown={markDropdownInteraction}
+								ontouchstart={markDropdownInteraction}
 								onclick={() => openMember(member.id)}
 							>
 								<img
