@@ -1,0 +1,18 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+.tree-line-v {
+	width: 2px;
+	background-color: rgba(115, 92, 0, 0.4);
+}
+.tree-line-h {
+	height: 2px;
+	background-color: rgba(115, 92, 0, 0.4);
+}
+.node-hover:hover {
+	box-shadow:
+		0 0 0 2px #ffe088,
+		0 12px 40px rgba(25, 28, 29, 0.06);
+	border-color: transparent;
+}

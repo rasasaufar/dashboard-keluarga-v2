@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^cd \"/Users/apple/Documents/Project Web Rasas/dashboard-keluarga-v2\" && node -e \"const m=require\\('\\./src/lib/data/members\\.json'\\); const byId=Object\\.fromEntries\\(m\\.map\\(x=>\\[x\\.id,x\\]\\)\\); const hasParent=id=> \\(byId\\[id\\]\\.family\\|\\|\\[\\]\\)\\.some\\(r=>\\['Father','Mother'\\]\\.includes\\(r\\.relation\\)\\); const roots=m\\.filter\\(x=>!hasParent\\(x\\.id\\)\\)\\.map\\(x=>x\\.id\\+':'\\+x\\.name\\); console\\.log\\('members',m\\.length\\); console\\.log\\('roots',roots\\); const rels=\\[\\.\\.\\.new Set\\(m\\.flatMap\\(x=>\\(x\\.family\\|\\|\\[\\]\\)\\.map\\(r=>r\\.relation\\)\\)\\)\\]\\.sort\\(\\); console\\.log\\('relations',rels\\);\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

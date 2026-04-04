@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Aliesyahbana Family</title>
+		<link rel="icon" href="%sveltekit.assets%/favicon.svg" type="image/svg+xml" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
+			rel="stylesheet"
+		/>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+			rel="stylesheet"
+		/>
+		%sveltekit.head%
+		<style>
+			.material-symbols-outlined {
+				font-variation-settings:
+					'FILL' 0,
+					'wght' 400,
+					'GRAD' 0,
+					'opsz' 24;
+			}
+			.hero-gradient {
+				background: linear-gradient(135deg, #012d1d 0%, #1b4332 100%);
+			}
+		</style>
+	</head>
+	<body
+		class="overflow-x-hidden bg-background font-body text-on-surface antialiased"
+		data-sveltekit-preload-data="hover"
+	>
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>
