@@ -13,6 +13,7 @@
     let activeFilter = $state<GalleryFilter>('All');
     let selectedMoment = $state<GalleryMoment | null>(null);
     let isIosSafari = $state(false);
+    let scrollLockY = 0;
 
     onMount(() => {
         const ua = navigator.userAgent;
@@ -39,13 +40,57 @@
         selectedMoment = null;
     }
 
+    function lockBodyScroll() {
+        if (typeof document === 'undefined') return;
+
+        scrollLockY = window.scrollY;
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${scrollLockY}px`;
+        document.body.style.left = '0';
+        document.body.style.right = '0';
+        document.body.style.width = '100%';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function unlockBodyScroll() {
+        if (typeof document === 'undefined') return;
+
+        const topValue = document.body.style.top;
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.width = '';
+        document.body.style.overflow = '';
+
+        const y = topValue ? Math.abs(parseInt(topValue, 10)) : scrollLockY;
+        window.scrollTo(0, Number.isNaN(y) ? scrollLockY : y);
+    }
+
+    function handleOverlayClick(event: MouseEvent) {
+        if (event.target !== event.currentTarget) return;
+        closeLightbox();
+    }
+
     function lightboxContentTransition(node: Element) {
         if (isIosSafari) {
-            return fade(node, { duration: 160 });
+            return fade(node, { duration: 0 });
         }
 
         return scale(node, { duration: 350, start: 0.95, opacity: 0 });
     }
+
+    $effect(() => {
+        if (selectedMoment) {
+            lockBodyScroll();
+        } else {
+            unlockBodyScroll();
+        }
+
+        return () => {
+            unlockBodyScroll();
+        };
+    });
 
     // Distribute into 2 columns for md
     let columnsMd = $derived(() => {
@@ -313,14 +358,14 @@
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <div
-        class={`fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 ${
+        class={`fixed left-0 top-0 z-[100] flex h-[100dvh] w-screen items-center justify-center overflow-y-auto overscroll-contain p-4 md:p-10 ${
             isIosSafari ? 'bg-slate-950/95 ios-lightbox-overlay' : 'bg-slate-950/90 backdrop-blur-md'
         }`}
-        transition:fade={{ duration: isIosSafari ? 140 : 250 }}
+        transition:fade={{ duration: isIosSafari ? 0 : 250 }}
         role="dialog"
         aria-modal="true"
         tabindex="-1"
-        onclick={closeLightbox}
+        onclick={handleOverlayClick}
     >
 
         <!-- Close Button -->
