@@ -134,28 +134,100 @@
 
 	const branches = createBranches();
 
-	const COUPLE_GAP_PX = 80;
-	const BRANCH_GAP_PX = 80;
-	const MIN_ZOOM = 0.6;
+	const COUPLE_GAP_DESKTOP_PX = 80;
+	const COUPLE_GAP_MOBILE_PX = 48;
+	const BRANCH_GAP_DESKTOP_PX = 80;
+	const BRANCH_GAP_MOBILE_PX = 48;
+	const MIN_ZOOM_DESKTOP = 0.6;
+	const MIN_ZOOM_MOBILE = 0.35;
 	const MAX_ZOOM = 2;
 	const ZOOM_STEP = 0.1;
-	const INITIAL_ZOOM = MIN_ZOOM;
+	const INITIAL_ZOOM_DESKTOP = MIN_ZOOM_DESKTOP;
+	const INITIAL_ZOOM_MOBILE = 0.42;
 	const ROOT_CONNECTOR_LEFT_TRIM_PX = 620;
 	const ROOT_CONNECTOR_RIGHT_TRIM_PX = 260;
 
-	let zoomLevel = $state(INITIAL_ZOOM);
+	let isMobileViewport = $state(false);
+	let supportsCssZoom = $state(true);
+	let hasInitializedZoom = false;
+	let zoomLevel = $state(INITIAL_ZOOM_DESKTOP);
 	let treeViewport: HTMLDivElement | null = null;
+	const zoomLayerStyle = $derived(
+		supportsCssZoom
+			? `zoom: ${zoomLevel};`
+			: `transform: scale(${zoomLevel}); transform-origin: top left;`
+	);
+
+	function centerTreeViewport() {
+		if (!treeViewport) return;
+
+		treeViewport.scrollTop = 0;
+		treeViewport.scrollLeft = Math.max(
+			0,
+			Math.round((treeViewport.scrollWidth - treeViewport.clientWidth) / 2)
+		);
+	}
+
+	function currentMinZoom() {
+		return isMobileViewport ? MIN_ZOOM_MOBILE : MIN_ZOOM_DESKTOP;
+	}
+
+	function coupleGapPx() {
+		return isMobileViewport ? COUPLE_GAP_MOBILE_PX : COUPLE_GAP_DESKTOP_PX;
+	}
+
+	function branchGapPx() {
+		return isMobileViewport ? BRANCH_GAP_MOBILE_PX : BRANCH_GAP_DESKTOP_PX;
+	}
 
 	onMount(() => {
-		requestAnimationFrame(() => {
-			if (!treeViewport) return;
+		if (typeof CSS !== 'undefined' && typeof CSS.supports === 'function') {
+			supportsCssZoom = CSS.supports('zoom', '1');
+		}
 
-			treeViewport.scrollTop = 0;
-			treeViewport.scrollLeft = Math.max(
-				0,
-				Math.round((treeViewport.scrollWidth - treeViewport.clientWidth) / 2)
-			);
+		const mobileMediaQuery = window.matchMedia('(max-width: 767px)');
+
+		const syncViewportMode = () => {
+			const wasMobile = isMobileViewport;
+			isMobileViewport = mobileMediaQuery.matches;
+
+			if (!hasInitializedZoom) {
+				zoomLevel = isMobileViewport ? INITIAL_ZOOM_MOBILE : INITIAL_ZOOM_DESKTOP;
+				hasInitializedZoom = true;
+			} else {
+				zoomLevel = clampZoom(zoomLevel);
+			}
+
+			if (wasMobile !== isMobileViewport) {
+				requestAnimationFrame(() => {
+					centerTreeViewport();
+				});
+			}
+		};
+
+		syncViewportMode();
+
+		const handleViewportChange = () => {
+			syncViewportMode();
+		};
+
+		if (typeof mobileMediaQuery.addEventListener === 'function') {
+			mobileMediaQuery.addEventListener('change', handleViewportChange);
+		} else {
+			mobileMediaQuery.addListener(handleViewportChange);
+		}
+
+		requestAnimationFrame(() => {
+			centerTreeViewport();
 		});
+
+		return () => {
+			if (typeof mobileMediaQuery.removeEventListener === 'function') {
+				mobileMediaQuery.removeEventListener('change', handleViewportChange);
+			} else {
+				mobileMediaQuery.removeListener(handleViewportChange);
+			}
+		};
 	});
 
 	function coupleBlockWidth(couple: Couple) {
@@ -175,7 +247,7 @@
 			(accumulator, couple) => accumulator + coupleBlockWidth(couple),
 			0
 		);
-		return totalCoupleWidth + COUPLE_GAP_PX * (couplesInBranch.length - 1);
+		return totalCoupleWidth + coupleGapPx() * (couplesInBranch.length - 1);
 	}
 
 	function branchWidth(branch: Branch) {
@@ -192,7 +264,7 @@
 			(accumulator, branch) => accumulator + branchWidthValue(branch),
 			0
 		);
-		return totalBranchWidth + BRANCH_GAP_PX * (branches.length - 1);
+		return totalBranchWidth + branchGapPx() * (branches.length - 1);
 	}
 
 	function rootChildrenConnectorWidth() {
@@ -214,7 +286,7 @@
 	}
 
 	function clampZoom(value: number) {
-		return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Number(value.toFixed(2))));
+		return Math.min(MAX_ZOOM, Math.max(currentMinZoom(), Number(value.toFixed(2))));
 	}
 
 	function zoomIn() {
@@ -250,14 +322,14 @@
 </script>
 
 <header
-	class="fixed right-0 top-0 z-40 flex h-16 w-full md:w-[calc(100%-16rem)] items-center justify-between border-b border-slate-100/10 bg-white/70 pl-16 pr-4 md:px-8 backdrop-blur-xl dark:bg-slate-950/70"
+	class="fixed right-0 top-0 z-40 flex h-auto min-h-16 w-full md:w-[calc(100%-16rem)] flex-col items-start justify-center gap-1 border-b border-slate-100/10 bg-white/70 py-2.5 pl-16 pr-4 md:h-16 md:flex-row md:items-center md:justify-between md:gap-0 md:py-0 md:px-8 backdrop-blur-xl dark:bg-slate-950/70"
 >
-	<div class="flex items-center gap-4">
+	<div class="flex flex-col gap-1 md:flex-row md:items-center md:gap-4">
 		<span class="font-headline text-xl font-black text-emerald-900 dark:text-emerald-100"
 			>The Living Archive</span
 		>
-		<div class="h-4 w-px bg-outline-variant/30"></div>
-		<span class="text-sm font-medium text-secondary">Interactive Lineage View</span>
+		<div class="hidden h-4 w-px bg-outline-variant/30 md:block"></div>
+		<span class="text-xs font-medium text-secondary md:text-sm">Interactive Lineage View</span>
 	</div>
 </header>
 
@@ -269,9 +341,9 @@
 	"
 ></div>
 
-<div bind:this={treeViewport} class="relative w-full overflow-auto pt-16 h-[calc(100vh-4rem)] md:h-full md:pt-0 pb-16 md:pb-0" onwheel={handleZoomWheel}>
-	<div class="origin-top-left" style={`zoom: ${zoomLevel};`}>
-		<div class="flex w-max min-w-[1400px] flex-col items-center p-8 md:p-24 pt-24 md:pt-32">
+<div bind:this={treeViewport} class="relative h-[calc(100vh-5.5rem)] w-full overflow-auto pt-24 pb-16 md:h-full md:pt-0 md:pb-0" onwheel={handleZoomWheel}>
+	<div class="origin-top-left" style={zoomLayerStyle}>
+		<div class="flex w-max min-w-[1180px] md:min-w-[1400px] flex-col items-center p-6 pt-20 md:p-24 md:pt-32">
 	<div class="relative mb-12 flex flex-wrap justify-center gap-16">
 		{#each generation1 as member}
 			<div class="flex flex-col items-center">
@@ -425,7 +497,7 @@
 		<button
 			type="button"
 			onclick={zoomOut}
-			disabled={zoomLevel <= MIN_ZOOM}
+			disabled={zoomLevel <= currentMinZoom()}
 			aria-label="Zoom out"
 			class="grid h-16 w-16 place-items-center text-primary transition-colors hover:bg-surface-container-highest/30 disabled:cursor-not-allowed disabled:opacity-40"
 		>
