@@ -88,24 +88,24 @@
 
 <!-- TopNavBar (Shared Component) -->
 <header
-	class="fixed top-0 right-0 w-full md:w-[calc(100%-16rem)] z-40 bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl flex justify-between items-center h-16 pl-16 pr-4 md:px-8 border-b border-slate-100/10"
+	class="fixed top-0 right-0 w-full md:w-[calc(100%-16rem)] z-40 bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl flex flex-col md:flex-row justify-start md:justify-between items-start md:items-center gap-3 md:gap-0 h-auto md:h-16 py-3 md:py-0 pl-16 pr-4 md:px-8 border-b border-slate-100/10"
 >
-	<div class="flex items-center gap-4">
+	<div class="flex w-full md:w-auto items-center gap-4">
 		<h2 class="text-xl font-black text-emerald-900 dark:text-emerald-100 font-headline">
 			Dashboard
 		</h2>
 	</div>
-	<div class="flex items-center gap-6">
+	<div class="flex w-full md:w-auto items-center">
 		<MemberSearch
 			placeholder="Search members..."
-			wrapperClass="relative w-64"
+			wrapperClass="relative w-full md:w-64"
 			inputClass="pl-10 pr-4 py-1.5 bg-surface-container-low border-none rounded-full text-sm focus:ring-1 focus:ring-tertiary w-full"
 			iconClass="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg"
 		/>
 	</div>
 </header>
 <!-- Content Area -->
-<div class="pt-24 pb-16 px-4 md:px-12 max-w-7xl mx-auto">
+<div class="pt-32 md:pt-24 pb-16 px-4 md:px-12 max-w-7xl mx-auto">
 	<!-- Hero Section -->
 	<section class="mb-8 md:mb-12 relative">
 		<div
