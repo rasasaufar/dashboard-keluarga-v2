@@ -38,6 +38,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /home/project-web-acas/dashboard-keluarga-v2
+            git checkout -- .
             git pull origin main
             cd /home/project-web-acas
             docker compose build dashboard
